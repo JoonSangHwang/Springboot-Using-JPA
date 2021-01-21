@@ -1,6 +1,8 @@
 package com.joonsang.example.SpringbootUsingJPA.repo;
 
+import com.joonsang.example.SpringbootUsingJPA.dto.MemberDto;
 import com.joonsang.example.SpringbootUsingJPA.entity.Member;
+import com.joonsang.example.SpringbootUsingJPA.entity.Team;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.MethodOrderer;
@@ -24,12 +26,16 @@ public class MemberRepositoryTest {
     @Autowired
     MemberRepository memberRepository;
 
+    @Autowired
+    TeamRepository teamRepository;
+
     @Test
     @DisplayName("테스트")
     public void testMember() {
 
-        // 스프링 JPA 가 Injection 하므로 Proxy 객체임.
+        // 참고 : 스프링 JPA 가 Injection 하므로 Proxy 객체임.
         System.out.println("memberRepository : "  + memberRepository.getClass());
+
 
         Member member       = new Member("memberA");
         Member savedMember  = memberRepository.save(member);
@@ -39,13 +45,14 @@ public class MemberRepositoryTest {
         Assertions.assertThat(findMember.getUsername()).isEqualTo(member.getUsername());
         Assertions.assertThat(findMember).isEqualTo(member);
 
-        // //JPA 엔티티 동일성 보장하므로 = 같음
+        // 참고 : JPA 엔티티 동일성 보장하므로 = 같음
         System.out.println("findMember : "  + findMember.getClass());
         System.out.println("savedMember : " + savedMember.getClass());
         System.out.println("findMember : "  + member.getClass());
     }
 
     @Test
+    @DisplayName("테스트 - CRUD")
     public void basicCRUD() {
         Member member1 = new Member("member1");
         Member member2 = new Member("member2");
@@ -83,7 +90,7 @@ public class MemberRepositoryTest {
 
         List<Member> all = memberRepository.findByUsernameAndAgeGreaterThan("BBB",15);
         assertThat(all.get(0).getUsername()).isEqualTo("BBB");
-        assertThat(all.get(0).getAge()).isEqualTo("20");
+        assertThat(all.get(0).getAge()).isEqualTo(20);
     }
 
     @Test
@@ -94,8 +101,8 @@ public class MemberRepositoryTest {
         memberRepository.save(member1);
         memberRepository.save(member2);
 
-        List<Member> all = memberRepository.find_________________________By();
-        assertThat(all.size()).isEqualTo(2);
+        List<Member> all = memberRepository.findHelloBy();
+        assertThat(all.size()).isGreaterThan(0);
     }
 
     @Test
@@ -108,6 +115,36 @@ public class MemberRepositoryTest {
 
         List<Member> all = memberRepository.findUser("AAA",10);
         assertThat(all.get(0)).isEqualTo(member1);
+    }
+
+    @Test
+    @DisplayName("<< @Query, 값, DTO 조회하기 - 단순한 값 조회 >>")
+    public void findUsernameList() {
+        Member member1 = new Member("AAA", 10);
+        Member member2 = new Member("BBB", 20);
+        memberRepository.save(member1);
+        memberRepository.save(member2);
+
+        List<String> all = memberRepository.findUsernameList();
+        for (String s : all) {
+            System.out.println("username = " + s);
+        }
+    }
+
+    @Test
+    @DisplayName("<< @Query, 값, DTO 조회하기 - DTO 조회 >>")
+    public void findMemberDto() {
+        Team team = new Team("teamA");
+        teamRepository.save(team);
+
+        Member member = new Member("AAA", 10);
+        member.changeTeam(team);
+        memberRepository.save(member);
+
+        List<MemberDto> memberDto = memberRepository.findMemberDto();
+        for (MemberDto s : memberDto) {
+            System.out.println("dto = " + s);
+        }
     }
 
 }

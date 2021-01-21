@@ -1,5 +1,6 @@
 package com.joonsang.example.SpringbootUsingJPA.repo;
 
+import com.joonsang.example.SpringbootUsingJPA.dto.MemberDto;
 import com.joonsang.example.SpringbootUsingJPA.entity.Member;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -24,7 +25,7 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
      * << 메소드 이름으로 쿼리 생성2 >>
      * - 유저 전체 조회
      */
-    List<Member> find_________________________By();
+    List<Member> findHelloBy();
 
     /**
      * << @Query, 리포지토리 메소드에 쿼리 정의하기 >>
@@ -32,4 +33,18 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
      */
     @Query("select m from Member m where m.username= :username and m.age = :age")
     List<Member> findUser(@Param("username") String username, @Param("age") int age);
+
+    /**
+     * << @Query, 값, DTO 조회하기 - 단순한 값 조회 >>
+     * - 유저 조회
+     */
+    @Query("select m.username from Member m")
+    List<String> findUsernameList();
+
+    /**
+     * << @Query, 값, DTO 조회하기 - DTO 조회 >>
+     * - 유저 조회
+     */
+    @Query("select new com.joonsang.example.SpringbootUsingJPA.dto.MemberDto(m.id, m.username, t.name) from Member m join m.team t")
+    List<MemberDto> findMemberDto();
 }
