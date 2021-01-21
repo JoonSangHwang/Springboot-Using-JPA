@@ -72,4 +72,42 @@ public class MemberRepositoryTest {
         long deletedCount = memberRepository.count();
         assertThat(deletedCount).isEqualTo(0);
     }
+
+    @Test
+    @DisplayName("<< 메소드 이름으로 쿼리 생성1 >>")
+    public void findByUsernameAndAgeGreaterThan() {
+        Member member1 = new Member("AAA", 10);
+        Member member2 = new Member("BBB", 20);
+        memberRepository.save(member1);
+        memberRepository.save(member2);
+
+        List<Member> all = memberRepository.findByUsernameAndAgeGreaterThan("BBB",15);
+        assertThat(all.get(0).getUsername()).isEqualTo("BBB");
+        assertThat(all.get(0).getAge()).isEqualTo("20");
+    }
+
+    @Test
+    @DisplayName("<< 메소드 이름으로 쿼리 생성2 >>")
+    public void find_________________________By() {
+        Member member1 = new Member("AAA", 10);
+        Member member2 = new Member("BBB", 20);
+        memberRepository.save(member1);
+        memberRepository.save(member2);
+
+        List<Member> all = memberRepository.find_________________________By();
+        assertThat(all.size()).isEqualTo(2);
+    }
+
+    @Test
+    @DisplayName("<< @Query, 리포지토리 메소드에 쿼리 정의하기 >>")
+    public void findUser() {
+        Member member1 = new Member("AAA", 10);
+        Member member2 = new Member("BBB", 20);
+        memberRepository.save(member1);
+        memberRepository.save(member2);
+
+        List<Member> all = memberRepository.findUser("AAA",10);
+        assertThat(all.get(0)).isEqualTo(member1);
+    }
+
 }
