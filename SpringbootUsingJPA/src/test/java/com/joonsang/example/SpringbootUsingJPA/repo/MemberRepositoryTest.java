@@ -10,6 +10,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.Sort;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -163,6 +167,33 @@ public class MemberRepositoryTest {
         System.out.println("return Type_aaa : " + aaa);
         System.out.println("return Type_bbb : " + bbb);
         System.out.println("return Type_ccc : " + ccc);
+    }
+
+    @Test
+    @DisplayName("<< 스프링 데이터 JPA 페이징과 정렬 >>")
+    public void findPageByAge() throws Exception {
+        //given
+        memberRepository.save(new Member("member1", 10));
+        memberRepository.save(new Member("member2", 10));
+        memberRepository.save(new Member("member3", 10));
+        memberRepository.save(new Member("member4", 10));
+        memberRepository.save(new Member("member5", 10));
+
+        //when
+        PageRequest pageRequest = PageRequest.of(0, 3, Sort.by(Sort.Direction.DESC, "username"));
+        Page<Member> pagingByAge = memberRepository.findPagingByAge(10, pageRequest);        // 반환 타입이 Page 객체 일 경우, 카운터 쿼리 자동으로 가져옴
+
+        //then
+        List<Member> content = pagingByAge.getContent();           // 조회된 데이터
+        assertThat(content.size()).isEqualTo(3);            // 조회된 데이터 수
+        assertThat(pagingByAge.getTotalElements()).isEqualTo(5);   // 전체 데이터 수
+        assertThat(pagingByAge.getNumber()).isEqualTo(0);          // 페이지 번호  
+        assertThat(pagingByAge.getTotalPages()).isEqualTo(2);      // 전체 페이지 번호
+        assertThat(pagingByAge.isFirst()).isTrue();                // 첫번째 항목인가?
+        assertThat(pagingByAge.hasNext()).isTrue();                // 다음 페이지가 있는가?
+
+
+        Slice<Member> sliceByUsername = memberRepository.findSliceByUsername(10, pageRequest);
     }
 
 }

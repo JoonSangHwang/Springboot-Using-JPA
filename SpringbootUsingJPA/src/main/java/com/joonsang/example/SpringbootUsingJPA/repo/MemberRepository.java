@@ -2,6 +2,10 @@ package com.joonsang.example.SpringbootUsingJPA.repo;
 
 import com.joonsang.example.SpringbootUsingJPA.dto.MemberDto;
 import com.joonsang.example.SpringbootUsingJPA.entity.Member;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -67,4 +71,13 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     List<Member> findListByUsername(String name);           //컬렉션
     Member findMemberByUsername(String name);               //단건
     Optional<Member> findOptionalByUsername(String name);   //단건 Optional
+
+    /**
+     * << 스프링 데이터 JPA 페이징과 정렬 >>
+     */
+    Page<Member>  findPagingByAge(int age, Pageable pageable);
+    Page<Member>  findPagingByUsername(String name, Pageable pageable);  //count 쿼리 사용
+    Slice<Member> findSliceByUsername(int age, Pageable pageable);   //count 쿼리 사용 안함
+    List<Member>  findListByUsername(String name, Pageable pageable);    //count 쿼리 사용 안함
+    List<Member>  findListSortByUsername(String name, Sort sort);
 }

@@ -45,6 +45,7 @@ class MemberJpaRepositoryTest {
     }
 
     @Test
+    @DisplayName("테스트 - CRUD")
     public void basicCRUD() {
         Member member1 = new Member("member1");
         Member member2 = new Member("member2");
@@ -73,8 +74,9 @@ class MemberJpaRepositoryTest {
     }
 
     @Test
-    @DisplayName("선택한 유저 중, age 보다 이상인 값 구하기")
+    @DisplayName("<< 메소드 이름으로 쿼리 생성1 >>")
     public void findByUsernameAndAgeGreaterThan() {
+        // 선택한 유저 중, age 보다 이상인 값 구하기
         Member m1 = new Member("AAA", 10);
         Member m2 = new Member("AAA", 20);
 
@@ -86,6 +88,28 @@ class MemberJpaRepositoryTest {
         assertThat(result.get(0).getUsername()).isEqualTo("AAA");
         assertThat(result.get(0).getAge()).isEqualTo(20);
         assertThat(result.size()).isEqualTo(1);
+    }
+
+    @Test
+    @DisplayName("<< 순수 JPA 페이징과 정렬 >>")
+    public void paging() throws Exception {
+        //given
+        memberJpaRepository.save(new Member("temp1", 10));
+        memberJpaRepository.save(new Member("temp2", 10));
+        memberJpaRepository.save(new Member("temp3", 10));
+        memberJpaRepository.save(new Member("temp4", 10));
+        memberJpaRepository.save(new Member("temp5", 10));
+        int age     = 10;
+        int offset  = 0;
+        int limit   = 3;
+
+        //when
+        List<Member> members = memberJpaRepository.findByPage(age, offset, limit);
+        long totalCount = memberJpaRepository.totalCount(age);
+
+        //then
+        assertThat(members.size()).isEqualTo(3);
+        assertThat(totalCount).isEqualTo(5);
     }
 
 }
