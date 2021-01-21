@@ -14,6 +14,7 @@ import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
@@ -145,6 +146,23 @@ public class MemberRepositoryTest {
         for (MemberDto s : memberDto) {
             System.out.println("dto = " + s);
         }
+    }
+
+    @Test
+    @DisplayName("<< 반환 타입 >>")
+    public void returnType() {
+        Member member1 = new Member("AAA", 10);
+        Member member2 = new Member("BBB", 20);
+        memberRepository.save(member1);
+        memberRepository.save(member2);
+
+        List<Member> aaa        = memberRepository.findListByUsername("AAA");       // 리스트는 절대 NULL 안 옴
+        Member bbb              = memberRepository.findMemberByUsername("AAA");     // 없을 경우, NULL (noResultException)
+        Optional<Member> ccc    = memberRepository.findOptionalByUsername("AAA");   // 없을 경우, Optional.empty
+
+        System.out.println("return Type_aaa : " + aaa);
+        System.out.println("return Type_bbb : " + bbb);
+        System.out.println("return Type_ccc : " + ccc);
     }
 
 }
