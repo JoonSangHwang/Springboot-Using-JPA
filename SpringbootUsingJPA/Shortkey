@@ -1,0 +1,41 @@
+# 참고 : https://okdevtv.com/mib/intellij/shortcuts
+
+
+Alt + Ins           : 디렉터리, 패키지, 클래스 등 생성 목록 보기
+Alt + Ins           : Generate
+Alt + Enter         : Show Context Actions
+Ctrl + Shift + T    : Test Class 생성
+
+
+Ctrl + Y            : 라인 삭제
+Ctrl + E            : 최근 실행했던 파일을 확인
+Ctrl + B            : 코드 안에서 다른 코드 이동 / 클래스 파일 보기
+
+Ctrl + F4           : close
+Ctrl + F5           : Rerun
+Ctrl + F7           : 사용된 위치를 검색
+Shift + F10         : Run
+
+Ctrl + Alt + T      : 코드로 코드 감싸기
+Ctrl + Shift + U    : 대소문자 변환
+
+Ctrl + Ctrl         : 실행 구성
+Shift + shift       : 전체 검색
+
+Ctrl + Shift + N    : Go to file (Eclipse: Ctrl + Shift + R)
+Ctrl + Shift + F    : Find in Path (Eclipse: Ctrl + H)
+Ctrl + Q            : Quick Documentation (Eclipse: F2)
+Ctrl + D            : 라인 복사 (Eclipse: Ctrl + D)
+F3                  : Find next (Eclipse: Ctrl + K)
+Shift + F3          : Find previous (Eclipse: Ctrl + Shift + K)
+
+
+Ctrl + Alt + S      : Settings 메뉴
+Ctrl + Shift + F12  : 전체화면
+
+
+Ctrl + Alt + V      : Escape
+
+
+# 참고
+psvm        : public static void main
