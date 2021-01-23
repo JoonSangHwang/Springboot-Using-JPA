@@ -300,6 +300,12 @@ public class MemberRepositoryTest {
         em.flush(); //Update Query 실행X
     }
 
+    @Test
+    @DisplayName("<< 사용자 정의 리포지토리 구현 >>")
+    public void findMemberCustom() throws Exception {
+        List<Member> result = memberRepository.findMemberCustom();
+    }
+
 
 
 }
