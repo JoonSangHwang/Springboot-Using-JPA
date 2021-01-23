@@ -4,6 +4,7 @@ import com.joonsang.example.SpringbootUsingJPA.dto.MemberDto;
 import com.joonsang.example.SpringbootUsingJPA.entity.Member;
 import com.joonsang.example.SpringbootUsingJPA.entity.Team;
 import org.assertj.core.api.Assertions;
+import org.hibernate.Hibernate;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Test;
@@ -19,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.PersistenceUnitUtil;
 import java.util.List;
 import java.util.Optional;
 
@@ -253,6 +255,37 @@ public class MemberRepositoryTest {
 
         //then
         assertThat(resultCount).isEqualTo(3);
+    }
+
+    @Test
+    @DisplayName("<< @EntityGraph>>")
+    public void findMemberLazy() throws Exception {
+        //given
+        Team teamA = new Team("teamA");
+        Team teamB = new Team("teamB");
+        teamRepository.save(teamA);
+        teamRepository.save(teamB);
+        memberRepository.save(new Member("member1", 10, teamA));
+        memberRepository.save(new Member("member2", 20, teamB));
+        em.flush();
+        em.clear();
+
+        //when
+        List<Member> members = memberRepository.findAll();
+
+        //then
+        for (Member member : members) {
+            member.getTeam().getName();
+
+            // 지연 로딩 여부 - JPA 표준 방법으로 확인
+            PersistenceUnitUtil util = em.getEntityManagerFactory().getPersistenceUnitUtil();
+            util.isLoaded(member.getTeam());
+
+            // 지연 로딩 여부 - Hibernate 기능으로 확인
+            Hibernate.isInitialized(member.getTeam());
+        }
+
+
     }
 
 
