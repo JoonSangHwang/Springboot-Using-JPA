@@ -6,12 +6,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.repository.EntityGraph;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Modifying;
-import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.jpa.repository.*;
 import org.springframework.data.repository.query.Param;
 
+import javax.persistence.LockModeType;
+import javax.persistence.QueryHint;
 import java.util.List;
 import java.util.Optional;
 
@@ -99,7 +98,26 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     @Query("update Member m set m.age = m.age + 1 where m.age >= :age")
     int bulkAgePlus(@Param("age") int age);
 
+    /**
+     * << @EntityGraph >>
+     * - Lazy 로딩이라 프록시로 채워지는 부분에 N+1 문제가 발생한다. 이럴떄 JPQL 을 사용하거나 @EntityGraph 를 사용한다.
+     */
     @Override
     @EntityGraph(attributePaths = {"team"})
     List<Member> findAll();
+
+    /**
+     * << QueryHint >>
+     * - @QueryHint의 readOnly는 스냅샷을 만들지 않기 때문에, 메모리가 절약됩니다
+     * - @Transaction(readOnly=true)는 트랜잭션 커밋 시점에 flush를 하지 않기 때문에 이로 인한 dirty checking 비용이 들지 않습니다. 따라서 cpu가 절약됩니다.
+     */
+    @QueryHints(value = @QueryHint(name = "org.hibernate.readOnly", value = "true"))
+    Member findReadOnlyByUsername(String username);
+
+    /**
+     * << Lock >>
+     * - JPA 책 16.1.5 참고
+     */
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    List<Member> findByUsername(String name);
 }
