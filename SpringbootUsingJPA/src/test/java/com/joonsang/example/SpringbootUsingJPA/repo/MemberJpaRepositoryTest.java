@@ -112,4 +112,21 @@ class MemberJpaRepositoryTest {
         assertThat(totalCount).isEqualTo(5);
     }
 
+    @Test
+    @DisplayName("<< 벌크성 수정 쿼리 >>")
+    public void bulkAgePlus() throws Exception {
+        //given
+        memberJpaRepository.save(new Member("temp1", 10));
+        memberJpaRepository.save(new Member("temp2", 15));
+        memberJpaRepository.save(new Member("temp3", 20));
+        memberJpaRepository.save(new Member("temp4", 25));
+        memberJpaRepository.save(new Member("temp5", 30));
+
+        //when
+        int resultCount = memberJpaRepository.bulkAgePlus(20);     // 20 살 이상은 모두 수정
+
+        //then
+        assertThat(resultCount).isEqualTo(3);
+    }
+
 }

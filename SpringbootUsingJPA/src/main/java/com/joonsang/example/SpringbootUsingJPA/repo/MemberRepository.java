@@ -7,6 +7,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -78,6 +79,22 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     Page<Member>  findPagingByAge(int age, Pageable pageable);
     Page<Member>  findPagingByUsername(String name, Pageable pageable);  //count 쿼리 사용
     Slice<Member> findSliceByUsername(int age, Pageable pageable);   //count 쿼리 사용 안함
-    List<Member>  findListByUsername(String name, Pageable pageable);    //count 쿼리 사용 안함
+    List<Member>  findListByUsername(int age, Pageable pageable);    //count 쿼리 사용 안함
     List<Member>  findListSortByUsername(String name, Sort sort);
+
+    @Query(value = "select m from Member m",
+            countQuery = "select count(m) from Member m")
+    Page<Member> findMemberAllCountBy(Pageable pageable);
+
+    /**
+     * << 벌크성 수정 쿼리 >>
+     * - 참고
+     *   : 벌크 연산은 영속성 컨텍스트를 무시하고 실행하기 때문에, 영속성 컨텍스트에 있는 엔티티의 상태와 DB에 엔티티 상태가 달라질 수 있다.
+     * - 권장하는 방안
+     *   1. 영속성 컨텍스트에 엔티티가 없는 상태에서 벌크 연산을 먼저 실행한다.
+     *   2. 부득이하게 영속성 컨텍스트에 엔티티가 있으면 벌크 연산 직후 영속성 컨텍스트를 초기화 한다.
+     */
+    @Modifying(clearAutomatically = true)
+    @Query("update Member m set m.age = m.age + 1 where m.age >= :age")
+    int bulkAgePlus(@Param("age") int age);
 }

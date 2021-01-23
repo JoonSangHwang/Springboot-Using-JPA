@@ -17,6 +17,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.util.List;
 import java.util.Optional;
 
@@ -33,6 +35,10 @@ public class MemberRepositoryTest {
 
     @Autowired
     TeamRepository teamRepository;
+
+    @PersistenceContext
+    EntityManager em;
+
 
     @Test
     @DisplayName("테스트")
@@ -185,15 +191,70 @@ public class MemberRepositoryTest {
 
         //then
         List<Member> content = pagingByAge.getContent();           // 조회된 데이터
-        assertThat(content.size()).isEqualTo(3);            // 조회된 데이터 수
+        assertThat(content.size()).isEqualTo(3);                   // 조회된 데이터 수
         assertThat(pagingByAge.getTotalElements()).isEqualTo(5);   // 전체 데이터 수
-        assertThat(pagingByAge.getNumber()).isEqualTo(0);          // 페이지 번호  
+        assertThat(pagingByAge.getNumber()).isEqualTo(0);          // 페이지 번호
         assertThat(pagingByAge.getTotalPages()).isEqualTo(2);      // 전체 페이지 번호
         assertThat(pagingByAge.isFirst()).isTrue();                // 첫번째 항목인가?
         assertThat(pagingByAge.hasNext()).isTrue();                // 다음 페이지가 있는가?
+        Page<MemberDto> memberDtoPage = pagingByAge.map(member -> new MemberDto(member.getId(), member.getUsername(), null));
 
 
+        /**
+         * Slice
+         * - Slice 는 클라이언트 요청 건 수의 +1 만큼 더 반환 한다.
+         */
+
+        //when
         Slice<Member> sliceByUsername = memberRepository.findSliceByUsername(10, pageRequest);
+
+        //then
+        List<Member> content2 = sliceByUsername.getContent();           // 조회된 데이터
+        assertThat(content2.size()).isEqualTo(3);                       // 조회된 데이터 수
+//        assertThat(sliceByUsername.getTotalElements()).isEqualTo(5);  // 전체 데이터 수
+        assertThat(sliceByUsername.getNumber()).isEqualTo(0);           // 페이지 번호
+//        assertThat(sliceByUsername.getTotalPages()).isEqualTo(2);     // 전체 페이지 번호
+        assertThat(sliceByUsername.isFirst()).isTrue();                 // 첫번째 항목인가?
+        assertThat(sliceByUsername.hasNext()).isTrue();                 // 다음 페이지가 있는가?
+        Slice<MemberDto> memberDtoPage2 = sliceByUsername.map(member -> new MemberDto(member.getId(), member.getUsername(), null));
+
+
+        /**
+         * List
+         * - 카운트 쿼리 없이 반환
+         */
+        List<Member> listByUsername = memberRepository.findListByUsername(10, pageRequest);
+//        listByUsername.map(member -> new MemberDto(member.getId(), member.getUsername(), null));
+
+
+        /**
+         * 페이징 쿼리와 카운트 쿼리 별도로 선언
+         * @Query value + countQuery
+         */
+        Page<Member> memberAllCountBy = memberRepository.findMemberAllCountBy(pageRequest);
+        Page<MemberDto> memberDtoPage4 = memberAllCountBy.map(member -> new MemberDto(member.getId(), member.getUsername(), null));
     }
+
+
+    @Test
+    @DisplayName("<< 벌크성 수정 쿼리 >>")
+    public void bulkUpdate() throws Exception {
+        //given
+        memberRepository.save(new Member("member1", 10));
+        memberRepository.save(new Member("member2", 19));
+        memberRepository.save(new Member("member3", 20));
+        memberRepository.save(new Member("member4", 21));
+        memberRepository.save(new Member("member5", 40));
+
+        //when
+        int resultCount = memberRepository.bulkAgePlus(20);
+        em.flush();     // 벌크성 수정은 바로 DB 에 저장 된다. 그러면 영속성 컨텍스트를 비워줄 필요가 있다.
+        em.clear();     // 또는, @Modifying(clearAutomatically = true) 으로 대체 할 수 있다.
+
+        //then
+        assertThat(resultCount).isEqualTo(3);
+    }
+
+
 
 }
